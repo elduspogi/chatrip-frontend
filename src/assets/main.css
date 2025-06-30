@@ -25,3 +25,7 @@ img {
   -webkit-user-select: none;
   -ms-user-select: none;
 }
+
+footer ul li::marker {
+  color: #000;
+}

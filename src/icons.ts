@@ -1,8 +1,8 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCircleExclamation, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCircleExclamation, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 function bootFontLibrary() {
-  library.add(faCircleExclamation, faXmark);
+  library.add(faCircleExclamation, faXmark, faArrowLeft);
 }
 
 export default bootFontLibrary;

@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import Billboard from "@/assets/images/Billboard.png";
+import FooterSection from "@/components/FooterSection.vue";
 import TextChatButton from "@/components/TextChatButton.vue";
 import { texts } from "@/texts";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const interests = ref<string>('');
 const storedInterest = ref<string[]>([]);
+
 const error = ref<boolean>(false);
 const errorMessage = ref<string>('');
+
+onMounted(() => {
+  storedInterest.value = JSON.parse(localStorage.getItem('interests') || '');
+});
 
 function storeInterest() {
 
@@ -24,13 +30,18 @@ function storeInterest() {
     return;
   }
 
+  // Store interest to Local Storage
   storedInterest.value.push(interests.value);
+  localStorage.setItem('interests', JSON.stringify(storedInterest.value));
+
+  // Clean input
   interests.value = '';
   error.value = false;
 }
 
 function destroyInterest(index: number) {
   storedInterest.value.splice(index, 1);
+  localStorage.setItem('interests', JSON.stringify(storedInterest.value));
 }
 </script>
 
@@ -85,5 +96,7 @@ function destroyInterest(index: number) {
         </div>
       </div>
     </div>
+
+    <FooterSection />
   </div>
 </template>
