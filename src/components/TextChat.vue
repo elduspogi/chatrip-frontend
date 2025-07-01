@@ -14,7 +14,7 @@ const isTyping = ref<boolean>(false);
 const isDisconnected = ref<{
   userId: string,
   isDisconnected: boolean
-}>();
+}>({ userId: '', isDisconnected: false });
 
 // Init Socket
 const socket: Socket = io(import.meta.env.VITE_URL, {
@@ -62,7 +62,20 @@ function confirmNew() {
   if(!confirm.value) {
     confirm.value = true;
 
-    // socket.on('connection', {})
+    // Look for partner
+    /**
+     * TO FIX: if statements when disconnection
+     */
+    if(isQueueing.value) {
+      confirm.value = false
+      isQueueing.value = false
+    } else {
+      socket.emit('find-partner', (data: { isQueueing: boolean }) => {
+        console.log('Matching...');
+        isQueueing.value = data.isQueueing;
+      })
+    }
+
   } else {
     console.log("You left the conversation.");
 
@@ -128,7 +141,7 @@ function userDisconnect() {
       >Stranger is typing...</p>
 
       <p
-        v-if="isDisconnected?.value?.isDisconnected"
+        v-if="isDisconnected.isDisconnected"
         class="font-bold"
       >{{ isDisconnected.userId === userId ? 'You' : 'Stranger has' }} disconnected.</p>
     </div>
