@@ -11,6 +11,7 @@ const conversation = ref<Message[]>([]);
 const roomId = ref<string>('');
 const isQueueing = ref<boolean>(false);
 const isTyping = ref<boolean>(false);
+const isMatched = ref<boolean>(false);
 const isDisconnected = ref<{
   userId: string,
   isDisconnected: boolean
@@ -25,6 +26,7 @@ const socket: Socket = io(import.meta.env.VITE_URL, {
 socket.on('send-user-id', (data: User) => {
   userId.value = data.userId;
   isQueueing.value = data.isQueueing;
+  console.log('isQueueing', isQueueing.value);
 })
 
 // Listen to server
@@ -33,14 +35,19 @@ socket.on('ping', (data: Message) => {
 });
 
 // Look for partner
-socket.emit('find-partner', (data: { isQueueing: boolean }) => {
-  console.log('Matching...');
-  isQueueing.value = data.isQueueing;
-})
+function findPartner() {
+  socket.emit('find-partner', (data: { isQueueing: boolean }) => {
+    console.log('Matching...');
+    isQueueing.value = data.isQueueing;
+  })
+}
+
+findPartner();
 
 socket.on('matched', (data: { roomId: string, partnerId: string, isQueueing: boolean }) => {
   isQueueing.value = data.isQueueing;
   roomId.value = data.roomId;
+  isMatched.value = true;
 })
 
 // Listen to typing
@@ -56,26 +63,15 @@ socket.on('notify-disconnection', (data: { userId: string; isDisconnected: boole
     userId: data.userId,
     isDisconnected: data.isDisconnected
   }
+
+  socket.disconnect();
 })
 
 function confirmNew() {
+  console.log(confirm.value)
+
   if(!confirm.value) {
     confirm.value = true;
-
-    // Look for partner
-    /**
-     * TO FIX: if statements when disconnection
-     */
-    if(isQueueing.value) {
-      confirm.value = false
-      isQueueing.value = false
-    } else {
-      socket.emit('find-partner', (data: { isQueueing: boolean }) => {
-        console.log('Matching...');
-        isQueueing.value = data.isQueueing;
-      })
-    }
-
   } else {
     console.log("You left the conversation.");
 
@@ -84,6 +80,31 @@ function confirmNew() {
 
     confirm.value = false;
   }
+}
+
+function stopQueueing() {
+  console.log(isQueueing.value)
+  // stop the queueing
+  if(!isQueueing.value) {
+    isQueueing.value = true;
+  } else {
+    isQueueing.value = false;
+  }
+
+  socket.disconnect();
+}
+
+function matchAgain() {
+  isMatched.value = false;
+  isQueueing.value = true;
+
+  socket.connect();
+
+  findPartner();
+
+  conversation.value = [];
+
+  isDisconnected.value.isDisconnected = false;
 }
 
 function sendMessage() {
@@ -115,7 +136,14 @@ function fireTyping() {
 const debouncedTyping = debounce(fireTyping, 1000);
 
 function userDisconnect() {
-  socket.emit('fire-disconnection', { userId: userId, roomId: roomId.value });
+  // socket.emit('fire-disconnection', { userId: userId, roomId: roomId.value });
+  socket.disconnect();
+  isDisconnected.value.userId = userId.value;
+  isDisconnected.value.isDisconnected = true;
+}
+
+function options() {
+  return isQueueing.value ? stopQueueing() : isDisconnected.value.isDisconnected ? matchAgain() : isMatched.value ? confirmNew() : matchAgain()
 }
 </script>
 
@@ -123,7 +151,7 @@ function userDisconnect() {
   <section class="h-[93vh] md:h-[88vh] xl:h-[90vh] grid grid-rows-[1fr_auto] gap-2 p-2">
     <div class="bg-white border-4 rounded-xl p-1 overflow-y-auto">
       <p class="font-bold">
-        {{ isQueueing ? 'Looking for stranger...' : "You're now chatting with a random stranger." }}
+        {{ isQueueing ? 'Looking for stranger...' : isMatched ? "You're now chatting with a random stranger.": 'Matching stopped.' }}
       </p>
 
       <p
@@ -149,9 +177,11 @@ function userDisconnect() {
     <div class="flex gap-1">
       <button
         class="bg-[#FFB7CB] hover:bg-[#ff7fa3] transition-colors duration-500 px-4 py-4 lg:px-10 lg:py-5 xl:px-20 xl:py-10 border-4 rounded-md cursor-pointer"
-        @click="confirmNew"
+        @click="options"
+        @keyup.esc="options"
       >
-        <p class="text-sm lg:text-lg font-bold">{{ confirm ? 'Sure?' : 'New' }}</p>
+        <p class="text-sm lg:text-lg font-bold">{{ isQueueing ? 'Stop' :  isMatched ? confirm ? 'Sure?' : 'New' : 'New' }}</p>
+
         <span class="hidden md:block text-[12px]">Esc</span>
       </button>
 
