@@ -12,7 +12,7 @@ const error = ref<boolean>(false);
 const errorMessage = ref<string>('');
 
 onMounted(() => {
-  storedInterest.value = JSON.parse(localStorage.getItem('interests') || '');
+  storedInterest.value = JSON.parse(localStorage.getItem('interests')) || [];
 });
 
 function storeInterest() {

@@ -2,7 +2,7 @@
 import type { Message, User } from '@/types';
 import { debounce } from 'lodash';
 import { io, Socket } from 'socket.io-client';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 
 const message = ref<string>('');
 const confirm = ref<boolean>(false);
@@ -11,54 +11,100 @@ const conversation = ref<Message[]>([]);
 const roomId = ref<string>('');
 const isQueueing = ref<boolean>(false);
 const isTyping = ref<boolean>(false);
+const isMatched = ref<boolean>(false);
+const isDisconnected = ref<{
+  userId: string,
+  isDisconnected: boolean
+}>({ userId: '', isDisconnected: false });
 
-let socket: Socket;
+// Init Socket
+const socket: Socket = io(import.meta.env.VITE_URL, {
+  transports: ['websocket'],
+});
 
-onMounted(() => {
-  // Init Socket
-  socket = io(import.meta.env.VITE_URL, {
-    transports: ['websocket'],
-  });
+// Get userId on page load
+socket.on('send-user-id', (data: User) => {
+  userId.value = data.userId;
+  isQueueing.value = data.isQueueing;
+  console.log('isQueueing', isQueueing.value);
+})
 
-  // Get userId on page load
-  socket.on('send-user-id', (data: User) => {
-    userId.value = data.userId;
-    isQueueing.value = data.isQueueing;
-  })
+// Listen to server
+socket.on('ping', (data: Message) => {
+  conversation.value.push(data);
+});
 
-  // Listen to server
-  socket.on('ping', (data: Message) => {
-    conversation.value.push(data);
-  });
-
-  // Look for partner
+// Look for partner
+function findPartner() {
   socket.emit('find-partner', (data: { isQueueing: boolean }) => {
     console.log('Matching...');
     isQueueing.value = data.isQueueing;
   })
+}
 
-  socket.on('matched', (data: { roomId: string, partnerId: string, isQueueing: boolean }) => {
-    isQueueing.value = data.isQueueing;
-    roomId.value = data.roomId;
-  })
+findPartner();
 
-  // Listen to typing
-  socket.on('fire-typing', (data: { userId: string, isTyping: boolean }) => {
-    if (data.userId !== userId.value) {
-      isTyping.value = data.isTyping;
-    }
-  })
+socket.on('matched', (data: { roomId: string, partnerId: string, isQueueing: boolean }) => {
+  isQueueing.value = data.isQueueing;
+  roomId.value = data.roomId;
+  isMatched.value = true;
+})
+
+// Listen to typing
+socket.on('fire-typing', (data: { userId: string, isTyping: boolean }) => {
+  if (data.userId !== userId.value) {
+    isTyping.value = data.isTyping;
+  }
+})
+
+// listen for disconnection
+socket.on('notify-disconnection', (data: { userId: string; isDisconnected: boolean }) => {
+  isDisconnected.value = {
+    userId: data.userId,
+    isDisconnected: data.isDisconnected
+  }
+
+  socket.disconnect();
 })
 
 function confirmNew() {
+  console.log(confirm.value)
+
   if(!confirm.value) {
     confirm.value = true;
   } else {
     console.log("You left the conversation.");
 
     // Handle Logic for User Disconnection
+    userDisconnect();
+
     confirm.value = false;
   }
+}
+
+function stopQueueing() {
+  console.log(isQueueing.value)
+  // stop the queueing
+  if(!isQueueing.value) {
+    isQueueing.value = true;
+  } else {
+    isQueueing.value = false;
+  }
+
+  socket.disconnect();
+}
+
+function matchAgain() {
+  isMatched.value = false;
+  isQueueing.value = true;
+
+  socket.connect();
+
+  findPartner();
+
+  conversation.value = [];
+
+  isDisconnected.value.isDisconnected = false;
 }
 
 function sendMessage() {
@@ -88,13 +134,24 @@ function fireTyping() {
 
 // Debounce the firing func by n seconds
 const debouncedTyping = debounce(fireTyping, 1000);
+
+function userDisconnect() {
+  // socket.emit('fire-disconnection', { userId: userId, roomId: roomId.value });
+  socket.disconnect();
+  isDisconnected.value.userId = userId.value;
+  isDisconnected.value.isDisconnected = true;
+}
+
+function options() {
+  return isQueueing.value ? stopQueueing() : isDisconnected.value.isDisconnected ? matchAgain() : isMatched.value ? confirmNew() : matchAgain()
+}
 </script>
 
 <template>
   <section class="h-[93vh] md:h-[88vh] xl:h-[90vh] grid grid-rows-[1fr_auto] gap-2 p-2">
     <div class="bg-white border-4 rounded-xl p-1 overflow-y-auto">
       <p class="font-bold">
-        {{ isQueueing ? 'Looking for stranger...' : "You're now chatting with a random stranger." }}
+        {{ isQueueing ? 'Looking for stranger...' : isMatched ? "You're now chatting with a random stranger.": 'Matching stopped.' }}
       </p>
 
       <p
@@ -110,14 +167,21 @@ const debouncedTyping = debounce(fireTyping, 1000);
         v-if="isTyping"
         class="font-bold"
       >Stranger is typing...</p>
+
+      <p
+        v-if="isDisconnected.isDisconnected"
+        class="font-bold"
+      >{{ isDisconnected.userId === userId ? 'You' : 'Stranger has' }} disconnected.</p>
     </div>
 
     <div class="flex gap-1">
       <button
         class="bg-[#FFB7CB] hover:bg-[#ff7fa3] transition-colors duration-500 px-4 py-4 lg:px-10 lg:py-5 xl:px-20 xl:py-10 border-4 rounded-md cursor-pointer"
-        @click="() => isQueueing ? confirmNew : sendMessage"
+        @click="options"
+        @keyup.esc="options"
       >
-        <p class="text-sm lg:text-lg font-bold">{{ confirm ? 'Sure?' : 'New' }}</p>
+        <p class="text-sm lg:text-lg font-bold">{{ isQueueing ? 'Stop' :  isMatched ? confirm ? 'Sure?' : 'New' : 'New' }}</p>
+
         <span class="hidden md:block text-[12px]">Esc</span>
       </button>
 
