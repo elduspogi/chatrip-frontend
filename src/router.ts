@@ -8,8 +8,8 @@ import TermsOfServicePage from "./pages/misc/TermsOfServicePage.vue";
 
 const routes = [
   { path: '/', component: LandingPage, meta: { layout: BaseLayout } },
-  { path: '/text', component: TextChatPage, meta: { layout: BaseLayout }},
-  { path: '/video', component: VideoChatPage, meta: { layout: BaseLayout } },
+  { path: '/text', component: TextChatPage, meta: { layout: BaseLayout }, name: 'text' },
+  { path: '/video', component: VideoChatPage, meta: { layout: BaseLayout }, name: 'video' },
   { path: '/terms-of-service', component: TermsOfServicePage, meta: { layout: BaseLayout } },
   { path: '/privacy-policy', component: TermsOfServicePage, meta: { layout: BaseLayout } },
   { path: '/community-guidelines', component: TermsOfServicePage, meta: { layout: BaseLayout } },
