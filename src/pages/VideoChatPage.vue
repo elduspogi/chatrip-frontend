@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import TextChat from '@/components/TextChat.vue';
-
-/**
- * FOR UNCOMMENT
- */
-// import Peer from 'peerjs';
-
+import { peer } from '@/lib/peer-instance';
 import { Socket } from 'socket.io-client';
 import { onMounted, onUnmounted, ref } from 'vue';
 
-const receivedData = ref<Socket>();
+let socket: Socket;
+const strangerPeerId = ref<string>('');
 
-function handleChildData(data: Socket) {
-  receivedData.value = data;
-  console.log(data);
+function handleChildData(socketInstance: Socket) {
+  socket = socketInstance;
 }
 
 let stream: MediaStream;
@@ -22,8 +17,8 @@ onMounted(() => {
   // Init camera
   const videoGrid = document.getElementById('videoGrid') as HTMLVideoElement;
   const strangerVideoGrid = document.getElementById('strangerVideoGrid') as HTMLVideoElement;
-  // const userPeer = new Peer();
 
+  // populate the videoGrid el
   const myVideo: HTMLVideoElement = document.createElement('video');
   myVideo.classList.add('video-el');
   myVideo.muted = true;
@@ -39,20 +34,51 @@ onMounted(() => {
     stream = args;
     addVideoStream(myVideo, stream, videoGrid);
 
+    const call = peer.call(strangerPeerId.value, stream);
+    call.on('stream', (remoteStream) => {
+      addVideoStream(strangerVideo, remoteStream, strangerVideoGrid);
+    })
+
     /**
      * FOR REMOVAL, CONNECT STRANGER WHEN 'find-partner' is successful
      */
-    addVideoStream(strangerVideo, stream, strangerVideoGrid);
+    // addVideoStream(strangerVideo, stream, strangerVideoGrid);
   })
 
   function addVideoStream(video: HTMLVideoElement, stream: MediaStream, camera: HTMLVideoElement) {
-    console.log(videoGrid);
     video.srcObject = stream
     video.addEventListener('loadedmetadata', () => { // Play the video as it loads
         video.play()
-    })
+    });
+
     camera.append(video) // Append video element to videoGrid
   }
+
+  /**
+   * FOR REPLACING
+   */
+  socket.on('matched', (data: { roomId: string, partnerId: string, isQueueing: boolean, userPeerId: string, strangerPeerId: string }) => {
+    console.log('userPeerId', data.userPeerId);
+    console.log('strangerPeerId', data.strangerPeerId);
+
+    strangerPeerId.value = data.strangerPeerId;
+
+    const conn = peer.connect(strangerPeerId.value);
+
+    conn.on('open', () => {
+      console.log('video chat now!');
+
+      addVideoStream(strangerVideo, stream, strangerVideoGrid);
+    });
+  });
+
+  socket.on('disconnect', () => {
+    strangerVideo.remove();
+  });
+
+  socket.on('send-user-id', () => {
+
+  })
 })
 
 onUnmounted(() => {

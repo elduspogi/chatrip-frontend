@@ -19,15 +19,15 @@ const {
 
 const emit = defineEmits(['pass-socket']);
 
-function passPropsToParent() {
-  emit('pass-socket', socket);
-}
-
 onMounted(() => {
-  passPropsToParent();
+  emit('pass-socket', socket);
 });
 
 onUnmounted(() => {
+  // clean the boolean values
+  conversation.value = [];
+  isDisconnected.value.isDisconnected = false;
+
   socket.disconnect();
 });
 </script>

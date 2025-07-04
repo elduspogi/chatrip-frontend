@@ -2,21 +2,28 @@ import type { Message, User } from '@/types';
 import { debounce } from 'lodash';
 import { io, Socket } from 'socket.io-client';
 import { ref } from 'vue';
+// import { peer } from './peer-instance';
+import Peer from 'peerjs';
+import { useRoute } from 'vue-router';
+
+const message = ref<string>('');
+const confirm = ref<boolean>(false);
+const userId = ref<string>('');
+const conversation = ref<Message[]>([]);
+const roomId = ref<string>('');
+const isQueueing = ref<boolean>(false);
+const isTyping = ref<boolean>(false);
+const isMatched = ref<boolean>(false);
+const isDisconnected = ref<{
+  userId: string,
+  isDisconnected: boolean
+}>({ userId: '', isDisconnected: false });
+const peerIds = ref<{
+  userPeerId: string;
+  strangerPeerId: string;
+}>();
 
 export function textChatSocket() {
-  const message = ref<string>('');
-  const confirm = ref<boolean>(false);
-  const userId = ref<string>('');
-  const conversation = ref<Message[]>([]);
-  const roomId = ref<string>('');
-  const isQueueing = ref<boolean>(false);
-  const isTyping = ref<boolean>(false);
-  const isMatched = ref<boolean>(false);
-  const isDisconnected = ref<{
-    userId: string,
-    isDisconnected: boolean
-  }>({ userId: '', isDisconnected: false });
-
   // Init Socket
   const socket: Socket = io(import.meta.env.VITE_URL, {
     transports: ['websocket'],
@@ -24,30 +31,57 @@ export function textChatSocket() {
 
   // Get userId on page load
   socket.on('send-user-id', (data: User) => {
+    console.log('senduserid is firing')
     userId.value = data.userId;
     isQueueing.value = data.isQueueing;
-    console.log('isQueueing', isQueueing.value);
+    console.log('send-user-id isQueueing', isQueueing.value);
   })
 
   // Listen to server
   socket.on('ping', (data: Message) => {
+    console.log('ping is firing')
     conversation.value.push(data);
   });
 
   // Look for partner
-  function findPartner() {
-    socket.emit('find-partner', (data: { isQueueing: boolean }) => {
-      console.log('Matching...');
-      isQueueing.value = data.isQueueing;
-    })
+  // function findPartner() {
+  //   socket.emit('find-partner', (data: { isQueueing: boolean }) => {
+  //     console.log('Matching...');
+  //     isQueueing.value = data.isQueueing;
+  //   })
+  // }
+
+  const peerId = ref<string>('');
+  const peer = new Peer();
+
+  function bootPeer() {
+    peer.on('open', (id) => {
+      peerId.value = id;
+
+      // boot this func on page load
+      findPartner();
+    });
   }
 
-  findPartner();
+  bootPeer();
 
-  socket.on('matched', (data: { roomId: string, partnerId: string, isQueueing: boolean }) => {
-    isQueueing.value = data.isQueueing;
+  const route = useRoute();
+
+  function findPartner() {
+    socket.emit('find-partner', { peerId: peerId.value, chatType: route.name }, () => {
+      console.log('Matching...');
+      isQueueing.value = true;
+    });
+  }
+
+  socket.on('matched', (data: { roomId: string, partnerId: string, userPeerId: string, strangerPeerId: string }) => {
+    isQueueing.value = false;
     roomId.value = data.roomId;
     isMatched.value = true;
+
+    peerIds.value = { userPeerId: data.userPeerId, strangerPeerId: data.strangerPeerId }
+
+    console.log('matched is firing')
   })
 
   // Listen to typing
@@ -63,13 +97,10 @@ export function textChatSocket() {
       userId: data.userId,
       isDisconnected: data.isDisconnected
     }
-
     socket.disconnect();
   })
 
   function confirmNew() {
-    console.log(confirm.value)
-
     if(!confirm.value) {
       confirm.value = true;
     } else {
@@ -83,7 +114,6 @@ export function textChatSocket() {
   }
 
   function stopQueueing() {
-    console.log(isQueueing.value)
     // stop the queueing
     if(!isQueueing.value) {
       isQueueing.value = true;
@@ -91,7 +121,7 @@ export function textChatSocket() {
       isQueueing.value = false;
     }
 
-    socket.disconnect();
+    // socket.disconnect();
   }
 
   function matchAgain() {
@@ -99,7 +129,7 @@ export function textChatSocket() {
     isQueueing.value = true;
 
     socket.connect();
-
+    bootPeer();
     findPartner();
 
     conversation.value = [];
@@ -136,7 +166,7 @@ export function textChatSocket() {
   const debouncedTyping = debounce(fireTyping, 1000);
 
   function userDisconnect() {
-    // socket.emit('fire-disconnection', { userId: userId, roomId: roomId.value });
+    // socket.on('fire-disconnection', { userId: userId, roomId: roomId.value });
     socket.disconnect();
     isDisconnected.value.userId = userId.value;
     isDisconnected.value.isDisconnected = true;
