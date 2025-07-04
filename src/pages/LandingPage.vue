@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Billboard from "@/assets/images/Billboard.png";
+import Billboard from "@/assets/images/billboard.png";
 import FooterSection from "@/components/FooterSection.vue";
 import TextChatButton from "@/components/TextChatButton.vue";
 import { texts } from "@/texts";
