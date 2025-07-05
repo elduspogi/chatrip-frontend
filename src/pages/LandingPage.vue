@@ -2,7 +2,7 @@
 import Billboard from "@/assets/images/billboard.png";
 import FooterSection from "@/components/FooterSection.vue";
 import TextChatButton from "@/components/TextChatButton.vue";
-import { texts } from "@/texts";
+import { landingePageContents } from "@/texts";
 import { onMounted, ref } from "vue";
 
 const interests = ref<string>('');
@@ -53,7 +53,7 @@ function destroyInterest(index: number) {
 
       <p
         :class="['pb-6', text.isWarning ? 'text-sm text-center opacity-75' : '']"
-        v-for="(text, index) in texts"
+        v-for="(text, index) in landingePageContents"
         :key="index"
       ><strong v-if="text.isTitle">Chatrip</strong> {{ text.text }}</p>
 
