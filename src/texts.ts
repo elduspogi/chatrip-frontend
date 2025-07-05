@@ -122,3 +122,9 @@ export const communityGuidelinesContent = [
     ]
   },
 ]
+
+export const footerSectionContents = [
+  { title: 'Terms of Service', path: '/terms-of-service' },
+  { title: 'Privacy Policy', path: '/privacy-policy' },
+  { title: 'Community Guidelines', path: '/community-guidelines' }
+]

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Billboard from "@/assets/images/billboard.png";
-import FooterSection from "@/components/FooterSection.vue";
 import TextChatButton from "@/components/TextChatButton.vue";
 import { landingePageContents } from "@/texts";
 import { onMounted, ref } from "vue";
@@ -52,20 +51,22 @@ function destroyInterest(index: number) {
       <img class="w-full" :src=Billboard alt="Chatrip. Your chat, your trip.">
 
       <p
-        :class="['pb-6', text.isWarning ? 'text-sm text-center opacity-75' : '']"
+        :class="['pb-6', text.isWarning ? 'text-sm text-center' : '']"
         v-for="(text, index) in landingePageContents"
         :key="index"
       ><strong v-if="text.isTitle">Chatrip</strong> {{ text.text }}</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-[60%_40%]">
         <div class="mb-2 pr-2">
-          <p class="text-center opacity-75">What do you want to talk about?</p>
+          <p class="text-center">What do you want to talk about?</p>
 
           <input
             @keyup.enter="storeInterest"
             v-model="interests"
             type="text"
-            class="interest-input w-full border-4 rounded-md h-12 px-2" placeholder="Add your interest (optional)"
+            class="interest-input w-full border-4 rounded-md h-12 px-2 opacity-50 cursor-not-allowed"
+            placeholder="Add your interest (optional)"
+            disabled=true
           >
 
             <!-- Error Message -->
@@ -89,7 +90,7 @@ function destroyInterest(index: number) {
         </div>
 
         <div>
-          <p class="text-center opacity-75">Start chatting:</p>
+          <p class="text-center">Start chatting:</p>
           <div class="grid grid-cols-2 gap-1 items-center">
             <TextChatButton type="Text" path="/text" />
             <TextChatButton type="Video" path="/video" />
@@ -97,7 +98,5 @@ function destroyInterest(index: number) {
         </div>
       </div>
     </div>
-
-    <FooterSection />
   </div>
 </template>
