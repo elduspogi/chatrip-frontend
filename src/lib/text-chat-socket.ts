@@ -3,8 +3,8 @@ import { debounce } from 'lodash';
 import { io, Socket } from 'socket.io-client';
 import { ref } from 'vue';
 // import { peer } from './peer-instance';
-import Peer from 'peerjs';
 import { useRoute } from 'vue-router';
+import { peer } from './peer-instance';
 
 const message = ref<string>('');
 const confirm = ref<boolean>(false);
@@ -49,7 +49,7 @@ export function textChatSocket() {
   // }
 
   const peerId = ref<string>('');
-  const peer = new Peer();
+  // const peer = new Peer();
 
   function bootPeer() {
     peer.on('open', (id) => {
