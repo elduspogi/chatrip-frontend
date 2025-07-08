@@ -31,15 +31,12 @@ export function textChatSocket() {
 
   // Get userId on page load
   socket.on('send-user-id', (data: User) => {
-    console.log('senduserid is firing')
     userId.value = data.userId;
     isQueueing.value = data.isQueueing;
-    console.log('send-user-id isQueueing', isQueueing.value);
   })
 
   // Listen to server
   socket.on('ping', (data: Message) => {
-    console.log('ping is firing')
     conversation.value.push(data);
   });
 
@@ -63,9 +60,13 @@ export function textChatSocket() {
     });
   }
 
-  bootPeer();
-
   const route = useRoute();
+
+  if (route.name === 'video') {
+    bootPeer();
+  } else {
+    findPartner();
+  }
 
   function findPartner() {
     socket.emit('find-partner', { peerId: peerId.value, chatType: route.name }, () => {
@@ -97,6 +98,8 @@ export function textChatSocket() {
       userId: data.userId,
       isDisconnected: data.isDisconnected
     }
+
+    isTyping.value = false;
     socket.disconnect();
   })
 
@@ -110,6 +113,8 @@ export function textChatSocket() {
       userDisconnect();
 
       confirm.value = false;
+
+      isTyping.value = false;
     }
   }
 
@@ -121,7 +126,7 @@ export function textChatSocket() {
       isQueueing.value = false;
     }
 
-    // socket.disconnect();
+    socket.disconnect();
   }
 
   function matchAgain() {
@@ -129,8 +134,14 @@ export function textChatSocket() {
     isQueueing.value = true;
 
     socket.connect();
-    bootPeer();
-    findPartner();
+
+    // bootPeer();
+    if (route.name === 'text') {
+      findPartner()
+    } else {
+      bootPeer()
+      findPartner()
+    }
 
     conversation.value = [];
 
@@ -189,6 +200,7 @@ export function textChatSocket() {
     sendMessage,
     debouncedTyping,
     options,
-    isDisconnected
+    isDisconnected,
+    bootPeer,
   }
 }

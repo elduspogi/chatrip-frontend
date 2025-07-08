@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import FooterSection from '@/components/FooterSection.vue';
 import { scrollToTop } from '@/lib/scroll-to-top';
 import { termsOfServiceContents } from '@/texts';
 import { RouterLink } from 'vue-router';
@@ -30,7 +29,5 @@ scrollToTop();
         </p>
       </div>
     </div>
-
-    <FooterSection />
   </div>
 </template>

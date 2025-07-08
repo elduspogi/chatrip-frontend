@@ -5,7 +5,7 @@ import { useRoute } from "vue-router";
 const routes = [
   { path: "/", name: "Home" },
   { path: "/how-it-works", name: "How it works" },
-  { path: "/FAQs", name: "FAQs" },
+  { path: "/faqs", name: "FAQs" },
 ]
 
 const currentRoute = useRoute();

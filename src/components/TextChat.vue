@@ -72,11 +72,11 @@ onUnmounted(() => {
 
       <input type="text"
         v-model="message"
-        :class="['border-4 rounded-md w-full p-1 bg-white placeholder:text-sm placeholder:md:text-lg', isQueueing ? 'opacity-75' : '']"
+        :class="['border-4 rounded-md w-full p-1 bg-white placeholder:text-sm placeholder:md:text-lg', isQueueing || isDisconnected.isDisconnected || !isMatched ? 'opacity-75 cursor-no-drop' : '']"
         placeholder="Enter message..."
         @keyup.enter="sendMessage"
         @input="debouncedTyping"
-        :disabled="isQueueing"
+        :disabled="isQueueing || isDisconnected.isDisconnected || !isMatched"
       >
 
       <button
