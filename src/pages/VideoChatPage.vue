@@ -91,11 +91,11 @@ onUnmounted(() => {
 <template>
   <section class="grid grid-cols-1 lg:grid-cols-[30%_70%]">
     <div class="grid grid-cols-2 lg:grid-cols-1 gap-2 m-2 lg:mr-0">
-      <div class="w-full h-[100px] md:h-[200px] lg:h-full bg-white border-4 rounded-xl video-grid" id="strangerVideoGrid">
+      <div class="w-full h-[100px] md:h-[215px] xl:h-[260px] 2xl:h-[420px] bg-white border-4 border-[#FFB7CB] rounded-xl video-grid" id="strangerVideoGrid">
         <!-- populate <video> tag here -->
       </div>
 
-      <div class="w-full h-[100px] md:h-[200px] lg:h-full bg-white border-4 rounded-xl video-grid" id="videoGrid">
+      <div class="w-full h-[100px] md:h-[215px] xl:h-[260px] 2xl:h-[420px] bg-white border-4 border-[#BBD3FF] rounded-xl video-grid" id="videoGrid">
         <!-- populate <video> tag here -->
       </div>
     </div>
