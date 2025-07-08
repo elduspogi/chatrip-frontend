@@ -16,7 +16,7 @@ const routes = [
   { path: '/terms-of-service', component: TermsOfServicePage, meta: { layout: BaseLayout } },
   { path: '/privacy-policy', component: PrivacyPolicyPage, meta: { layout: BaseLayout } },
   { path: '/community-guidelines', component: CommunityGuidelinesPage, meta: { layout: BaseLayout } },
-  { path: '/:catchAll(.*)', component: Error404Page, meta: { layout: BaseLayout } },
+  { path: '/:catchAll(.*)', component: Error404Page, meta: { layout: ChatLayout } },
 ]
 
 const router = createRouter({
