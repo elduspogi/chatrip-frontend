@@ -1,10 +1,9 @@
 import type { Message, User } from '@/types';
 import { debounce } from 'lodash';
-import { io, Socket } from 'socket.io-client';
 import { ref } from 'vue';
 // import { peer } from './peer-instance';
 import { useRoute } from 'vue-router';
-import { peer } from './peer-instance';
+import { peer, socket } from './peer-instance';
 
 const message = ref<string>('');
 const confirm = ref<boolean>(false);
@@ -24,11 +23,6 @@ const peerIds = ref<{
 }>();
 
 export function textChatSocket() {
-  // Init Socket
-  const socket: Socket = io(import.meta.env.VITE_URL, {
-    transports: ['websocket'],
-  });
-
   // Get userId on page load
   socket.on('send-user-id', (data: User) => {
     userId.value = data.userId;

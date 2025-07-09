@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import TextChat from '@/components/TextChat.vue';
-import { peer } from '@/lib/peer-instance';
-import { Socket } from 'socket.io-client';
+import { peer, socket } from '@/lib/peer-instance';
 import { onMounted, onUnmounted } from 'vue';
-
-let socket: Socket;
-
-function handleChildData(socketInstance: Socket) {
-  socket = socketInstance;
-}
 
 let stream: MediaStream;
 
@@ -97,6 +90,6 @@ onUnmounted(() => {
         <!-- populate <video> tag here -->
       </div>
     </div>
-    <TextChat @pass-socket="handleChildData" />
+    <TextChat />
   </section>
 </template>

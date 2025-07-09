@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { textChatSocket } from '@/lib/text-chat-socket';
-import { onMounted, onUnmounted } from 'vue';
+import { onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 
 const {
@@ -17,12 +17,6 @@ const {
   options,
   isDisconnected
 } = textChatSocket();
-
-const emit = defineEmits(['pass-socket']);
-
-onMounted(() => {
-  emit('pass-socket', socket);
-});
 
 const route = useRoute();
 
