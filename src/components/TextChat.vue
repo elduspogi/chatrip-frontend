@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { textChatSocket } from '@/lib/text-chat-socket';
 import { onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 
 const {
   socket,
@@ -23,10 +24,14 @@ onMounted(() => {
   emit('pass-socket', socket);
 });
 
+const route = useRoute();
+
 onUnmounted(() => {
   // clean the boolean values
   conversation.value = [];
   isDisconnected.value.isDisconnected = false;
+
+  socket.emit('fire-disconnection', { socketId: socket.id, chatType: route.name });
 
   socket.disconnect();
 });
