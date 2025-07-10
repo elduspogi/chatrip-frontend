@@ -21,29 +21,19 @@ const peerIds = ref<{
   userPeerId: string;
   strangerPeerId: string;
 }>();
+const peerId = ref<string>('');
 
 export function textChatSocket() {
   // Get userId on page load
   socket.on('send-user-id', (data: User) => {
     userId.value = data.userId;
-    isQueueing.value = data.isQueueing;
+    isQueueing.value = true;
   })
 
   // Listen to server
   socket.on('ping', (data: Message) => {
     conversation.value.push(data);
   });
-
-  // Look for partner
-  // function findPartner() {
-  //   socket.emit('find-partner', (data: { isQueueing: boolean }) => {
-  //     console.log('Matching...');
-  //     isQueueing.value = data.isQueueing;
-  //   })
-  // }
-
-  const peerId = ref<string>('');
-  // const peer = new Peer();
 
   function bootPeer() {
     peer.on('open', (id) => {
