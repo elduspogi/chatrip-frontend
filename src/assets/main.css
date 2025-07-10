@@ -37,3 +37,8 @@ footer ul li::marker {
   overflow: hidden;
   border-radius: 8px;
 }
+
+video {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
