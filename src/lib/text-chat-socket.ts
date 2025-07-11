@@ -110,7 +110,7 @@ export function textChatSocket() {
       isQueueing.value = false;
     }
 
-    socket.disconnect();
+    socket.emit('stop-queueing', { chatType: route.name });
   }
 
   function matchAgain() {

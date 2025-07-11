@@ -5,6 +5,12 @@ import { onMounted, onUnmounted } from 'vue';
 
 let stream: MediaStream;
 
+const isMediaDevicesOn = sessionStorage.getItem('isMediaDevicesOn');
+
+if(isMediaDevicesOn === 'false' || isMediaDevicesOn === null) {
+  window.location.href = '/';
+}
+
 onMounted(() => {
   // Init camera
   const videoGrid = document.getElementById('videoGrid') as HTMLDivElement;
@@ -38,6 +44,10 @@ onMounted(() => {
       connectToNewUser(data.strangerPeerId, stream);
       console.log(data);
     })
+  }).catch(err => {
+    console.warn(err);
+    sessionStorage.removeItem('isMediaDevicesOn');
+    window.location.reload()
   })
 
   function connectToNewUser(strangerPeerId: string, stream: MediaStream) {

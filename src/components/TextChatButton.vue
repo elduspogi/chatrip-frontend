@@ -11,6 +11,7 @@ function turnOnMediaDevices() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then(() => {
       window.location.href = '/video'
+      sessionStorage.setItem('isMediaDevicesOn', 'true')
     })
 }
 </script>

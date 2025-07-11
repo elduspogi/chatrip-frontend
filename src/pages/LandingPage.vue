@@ -10,6 +10,8 @@ const storedInterest = ref<string[]>([]);
 const error = ref<boolean>(false);
 const errorMessage = ref<string>('');
 
+// const videoError = ref<boolean>(false);
+
 onMounted(() => {
   const rawInterests = localStorage.getItem('interests');
   storedInterest.value = rawInterests ? JSON.parse(rawInterests) : [];
@@ -42,6 +44,15 @@ function storeInterest() {
 function destroyInterest(index: number) {
   storedInterest.value.splice(index, 1);
   localStorage.setItem('interests', JSON.stringify(storedInterest.value));
+}
+
+function checkForMediaDevices() {
+  const isMediaDevicesOn = sessionStorage.getItem('isMediaDevicesOn');
+  if(isMediaDevicesOn === 'false' || isMediaDevicesOn === null) {
+    error.value = true;
+    errorMessage.value = 'Turn on your camera and microphone to access video chat.';
+
+  }
 }
 </script>
 
@@ -93,7 +104,7 @@ function destroyInterest(index: number) {
           <p class="text-center">Start chatting:</p>
           <div class="grid grid-cols-2 gap-1 items-center">
             <TextChatButton type="Text" path="/text" />
-            <TextChatButton type="Video" path="/video" />
+            <TextChatButton type="Video" path="/video" @click="checkForMediaDevices" />
           </div>
         </div>
       </div>
