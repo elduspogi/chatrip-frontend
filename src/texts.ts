@@ -73,8 +73,6 @@ export const privacyPolicyContents = [
   },
 ]
 
-const emailAddress = 'support@chatrip.com';
-
 export const communityGuidelinesContent = [
   { title: 'Be Respectful',
     text: 'Treat everyone with kindness and respect. Harassment, hate speech, discrimination, or bullying of any kind is strictly prohibited.',
@@ -114,12 +112,7 @@ export const communityGuidelinesContent = [
     ]
   },
   { title: 'Report Misconduct',
-    text: `If you encounter someone violating these guidelines, please contact us at ${emailAddress}.`,
-    list: [
-      { text: 'Sharing illegal content' },
-      { text: 'Attempting to exploit minors' },
-      { text: 'Using the service to commit fraud' },
-    ]
+    text: `If you encounter someone violating these guidelines, please contact us at`,
   },
 ]
 

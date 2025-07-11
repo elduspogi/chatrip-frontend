@@ -3,6 +3,9 @@ import { scrollToTop } from '@/lib/scroll-to-top';
 import { communityGuidelinesContent } from '@/texts';
 
 scrollToTop();
+
+const emailAddress = 'support@chatrip.com';
+const mailTo: string = `mailto:${emailAddress}`;
 </script>
 
 <template>
@@ -19,6 +22,12 @@ scrollToTop();
         <h1 class="font-bold">{{ index + 1 }}. {{ content.title }}</h1>
         <p>
           {{ content.text }}
+
+          <a
+            v-if="content.title === 'Report Misconduct'"
+            class="font-bold underline text-[#5500FF]"
+            :href="mailTo"
+          >{{ emailAddress }}</a>.
         </p>
 
         <ul v-if="content.list" class="list-disc px-8 py-2">
@@ -27,6 +36,7 @@ scrollToTop();
             :key="index"
           >{{  item.text }}</li>
         </ul>
+
       </div>
     </div>
   </div>
