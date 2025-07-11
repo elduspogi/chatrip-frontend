@@ -1,10 +1,9 @@
 import type { Message, User } from '@/types';
 import { debounce } from 'lodash';
-import { io, Socket } from 'socket.io-client';
 import { ref } from 'vue';
 // import { peer } from './peer-instance';
 import { useRoute } from 'vue-router';
-import { peer } from './peer-instance';
+import { peer, socket } from './peer-instance';
 
 const message = ref<string>('');
 const confirm = ref<boolean>(false);
@@ -22,34 +21,19 @@ const peerIds = ref<{
   userPeerId: string;
   strangerPeerId: string;
 }>();
+const peerId = ref<string>('');
 
 export function textChatSocket() {
-  // Init Socket
-  const socket: Socket = io(import.meta.env.VITE_URL, {
-    transports: ['websocket'],
-  });
-
   // Get userId on page load
   socket.on('send-user-id', (data: User) => {
     userId.value = data.userId;
-    isQueueing.value = data.isQueueing;
+    isQueueing.value = true;
   })
 
   // Listen to server
   socket.on('ping', (data: Message) => {
     conversation.value.push(data);
   });
-
-  // Look for partner
-  // function findPartner() {
-  //   socket.emit('find-partner', (data: { isQueueing: boolean }) => {
-  //     console.log('Matching...');
-  //     isQueueing.value = data.isQueueing;
-  //   })
-  // }
-
-  const peerId = ref<string>('');
-  // const peer = new Peer();
 
   function bootPeer() {
     peer.on('open', (id) => {
@@ -126,7 +110,7 @@ export function textChatSocket() {
       isQueueing.value = false;
     }
 
-    socket.disconnect();
+    socket.emit('stop-queueing', { chatType: route.name });
   }
 
   function matchAgain() {
