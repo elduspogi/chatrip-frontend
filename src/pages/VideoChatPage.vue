@@ -19,11 +19,12 @@ onMounted(() => {
   // populate the videoGrid el
   const myVideo: HTMLVideoElement = document.createElement('video');
   myVideo.classList.add('video-el');
-  myVideo.muted = true;
+  myVideo.setAttribute('muted', 'true');
+  // myVideo.muted = true;
 
   const strangerVideo: HTMLVideoElement = document.createElement('video');
   strangerVideo.classList.add('video-el');
-  strangerVideo.muted = true;
+  // strangerVideo.muted = true;
 
   navigator.mediaDevices.getUserMedia({
     video: true,
