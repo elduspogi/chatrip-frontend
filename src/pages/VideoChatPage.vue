@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import TextChat from '@/components/TextChat.vue';
 import { peer, socket } from '@/lib/peer-instance';
+import { textChatSocket } from '@/lib/text-chat-socket';
 import { onMounted, onUnmounted } from 'vue';
 
 let stream: MediaStream;
@@ -10,6 +11,8 @@ const isMediaDevicesOn = sessionStorage.getItem('isMediaDevicesOn');
 if(isMediaDevicesOn === 'false' || isMediaDevicesOn === null) {
   window.location.href = '/';
 }
+
+const { isLoading } = textChatSocket()
 
 onMounted(() => {
   // Init camera
@@ -57,6 +60,7 @@ onMounted(() => {
     call.on('stream', strangerVideoStream => {
       addVideoStream(strangerVideo, strangerVideoStream, strangerVideoGrid);
       console.log('firing stream on fn connectToNewUser');
+      isLoading.value = false
     })
 
     call.on('close', () => {
