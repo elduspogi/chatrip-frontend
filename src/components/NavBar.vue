@@ -27,8 +27,8 @@ function toggleMenu() {
     </div>
     <!-- Hamburger Menu -->
     <div class="block lg:hidden md:mr-2">
-      <button @click="toggleMenu" :class="['flex items-center py-1 px-2 rounded-md', openMenu ? 'outline-solid outline-[#FFB7CB]' : '']">
-        <font-awesome-icon :icon="['fas', 'bars']" class="text-xl md:text-2xl text-[#FFB7CB]" />
+      <button @click="toggleMenu" class="flex items-center py-1 px-2 rounded-md cursor-pointer">
+        <font-awesome-icon :icon="['fas', !openMenu ? 'bars' : 'xmark']" class="text-xl md:text-2xl text-[#FFB7CB]" />
       </button>
     </div>
     <!-- Menu List -->

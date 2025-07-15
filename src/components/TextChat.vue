@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { textChatSocket } from '@/lib/text-chat-socket';
-import { onUnmounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 
 const {
@@ -15,10 +15,19 @@ const {
   sendMessage,
   debouncedTyping,
   options,
-  isDisconnected
+  isDisconnected,
+  isLoading
 } = textChatSocket();
 
 const route = useRoute();
+
+onMounted(() => {
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isLoading.value === false) {
+      options()
+    }
+  })
+})
 
 onUnmounted(() => {
   // clean the boolean values
@@ -48,21 +57,21 @@ onUnmounted(() => {
       </p>
 
       <p
-        v-if="isTyping"
+        v-show="isTyping"
         class="font-bold"
       >Stranger is typing...</p>
 
       <p
-        v-if="isDisconnected.isDisconnected"
+        v-show="isDisconnected.isDisconnected"
         class="font-bold"
       >{{ isDisconnected.userId === userId ? 'You' : 'Stranger has' }} disconnected.</p>
     </div>
 
     <div class="flex gap-1">
       <button
-        class="bg-[#FFB7CB] hover:bg-[#ff7fa3] transition-colors duration-500 px-4 py-4 lg:px-10 lg:py-5 xl:px-20 xl:py-10 border-4 rounded-md cursor-pointer"
+        :class="['bg-[#FFB7CB] hover:bg-[#ff7fa3] transition-colors duration-500 px-4 py-4 lg:px-10 lg:py-5 xl:px-20 xl:py-10 border-4 rounded-md cursor-pointer', isLoading ? 'opacity-75' : '']"
         @click="options"
-        @keyup.esc="options"
+        :disabled=isLoading
       >
         <p class="text-sm lg:text-lg font-bold">{{ isQueueing ? 'Stop' :  isMatched ? confirm ? 'Sure?' : 'New' : 'New' }}</p>
 

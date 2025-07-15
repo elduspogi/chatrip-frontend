@@ -22,6 +22,7 @@ const peerIds = ref<{
   strangerPeerId: string;
 }>();
 const peerId = ref<string>('');
+const isLoading = ref<boolean>(false);
 
 export function textChatSocket() {
   // Get userId on page load
@@ -65,6 +66,8 @@ export function textChatSocket() {
     isMatched.value = true;
 
     peerIds.value = { userPeerId: data.userPeerId, strangerPeerId: data.strangerPeerId }
+
+    if(route.name === 'video') isLoading.value = true
 
     console.log('matched is firing')
   })
@@ -186,5 +189,6 @@ export function textChatSocket() {
     options,
     isDisconnected,
     bootPeer,
+    isLoading
   }
 }
