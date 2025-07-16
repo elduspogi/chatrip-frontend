@@ -22,7 +22,7 @@ const peerIds = ref<{
   strangerPeerId: string;
 }>();
 const peerId = ref<string>('');
-const isLoading = ref<boolean>(false);
+export const isLoading = ref<boolean>(false);
 
 export function textChatSocket() {
   // Get userId on page load
