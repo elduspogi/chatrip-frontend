@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import TextChat from '@/components/TextChat.vue';
 import { peer, socket } from '@/lib/peer-instance';
-import { textChatSocket } from '@/lib/text-chat-socket';
 import { onMounted, onUnmounted } from 'vue';
 
 let stream: MediaStream;
@@ -12,7 +11,7 @@ if(isMediaDevicesOn === 'false' || isMediaDevicesOn === null) {
   window.location.href = '/';
 }
 
-const { isLoading } = textChatSocket()
+import { isLoading } from '@/lib/text-chat-socket';
 
 onMounted(() => {
   // Init camera
