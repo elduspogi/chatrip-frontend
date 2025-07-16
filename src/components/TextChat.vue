@@ -61,10 +61,26 @@ onUnmounted(() => {
         class="font-bold"
       >Stranger is typing...</p>
 
-      <p
+      <div
         v-show="isDisconnected.isDisconnected"
-        class="font-bold"
-      >{{ isDisconnected.userId === userId ? 'You' : 'Stranger has' }} disconnected.</p>
+      >
+        <p
+          class="font-bold"
+        >{{ isDisconnected.userId === userId ? 'You' : 'Stranger has' }} disconnected.</p>
+
+        <div class="flex items-center gap-2">
+          <button
+            class="md:text-xl text-white px-4 py-2 md:px-12 md:py-4 my-2 rounded-lg bg-gradient-to-b from-[#BBD3FF] via-[#5f97ff] to-[#5f97ff] duration-500 cursor-pointer"
+            @click="options"
+          >New chat</button>
+          <p>
+            or
+              <a :href="route.name === 'video' ? '/text' : '/video'" class="underline font-bold text-[#5500FF]">
+                turn {{ route.name === 'video' ? 'off' : 'on' }} video
+              </a>
+          </p>
+        </div>
+      </div>
     </div>
 
     <div class="flex gap-1">
