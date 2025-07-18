@@ -34,6 +34,8 @@ function storeInterest() {
 
   // Store interest to Local Storage
   storedInterest.value.push(interests.value);
+  const stringed = JSON.stringify(storedInterest.value)
+  console.log(stringed)
   localStorage.setItem('interests', JSON.stringify(storedInterest.value));
 
   // Clean input
@@ -75,9 +77,9 @@ function checkForMediaDevices() {
             @keyup.enter="storeInterest"
             v-model="interests"
             type="text"
-            class="interest-input w-full border-4 rounded-md h-12 px-2 opacity-50 cursor-not-allowed"
+            class="interest-input w-full border-4 rounded-md h-12 px-2 cursor-not-allowed"
             placeholder="Add your interest (optional)"
-            disabled=true
+            :disabled="true"
           >
 
             <!-- Error Message -->
