@@ -38,6 +38,81 @@ onUnmounted(() => {
 
   socket.disconnect();
 });
+
+function downloadConversation() {
+  const template = `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <link rel="icon" href="/favicon.ico">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Chatrip</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+            body {
+                background-color: #ECE0D1;
+                font-family: "Nunito", sans-serif;
+            }
+
+            section {
+                background-color: white;
+                margin: 12px 6px;
+                height: 95vh;
+                border: 4px solid black;
+                border-radius: 12px;
+                padding: 6px;
+            }
+
+            p {
+              margin: 0;
+            }
+
+            .chat {
+                font-weight: bold;
+            }
+
+            .you {
+                color: #1E88E5;
+            }
+
+            .stranger {
+                color: #E53935;
+            }
+        </style>
+      </head>
+      <body>
+        <section>
+            <!-- populate conversations here -->
+            ${conversation.value.map(chat => `
+              <p>
+                <span class="chat ${chat.userId === userId.value ? 'you' : 'stranger'}">
+                  ${chat.userId === userId.value ? 'You: ' : 'Stranger: '}
+                </span>
+                ${chat.message}
+              </p>
+            `).join('')}
+        </section>
+      </body>
+    </html>
+  `
+
+  const blob = new Blob([template], { type: 'text/html' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+
+  if(conversation)
+
+  a.href = url
+  a.download = 'conversation.html'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+
+  console.log(template)
+}
 </script>
 
 <template>
@@ -76,10 +151,17 @@ onUnmounted(() => {
           <p>
             or
               <a :href="route.name === 'video' ? '/text' : '/video'" class="underline font-bold text-[#5500FF]">
-                turn {{ route.name === 'video' ? 'off' : 'on' }} video
+                switch to {{ route.name === 'video' ? 'text' : 'video' }}
               </a>
           </p>
         </div>
+
+        <p class="font-bold" v-show="conversation.length > 0">
+          Had fun? Download the conversation
+          <span
+            class="underline font-bold text-[#5500FF] cursor-pointer"
+            @click="downloadConversation">here</span>.
+          </p>
       </div>
     </div>
 

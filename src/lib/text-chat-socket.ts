@@ -54,7 +54,9 @@ export function textChatSocket() {
   }
 
   function findPartner() {
-    socket.emit('find-partner', { peerId: peerId.value, chatType: route.name }, () => {
+    const interests = localStorage.getItem('interests')
+
+    socket.emit('find-partner', { peerId: peerId.value, chatType: route.name, interests: interests}, () => {
       console.log('Matching...');
       isQueueing.value = true;
     });
